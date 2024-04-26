@@ -18,7 +18,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	args := strings.Split(r.URL.Path, "/")
 	args = args[1:]
 
-	if len(args) == 1 || (len(args) == 2 && args[1] == "md5") {
+	if !(len(args) == 1 || (len(args) == 2 && args[1] == "md5")) {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
