@@ -15,6 +15,7 @@ import (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	args := strings.Split(r.URL.Path, "/")
 	args = args[1:]
