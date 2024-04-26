@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/hex"
 	"image/png"
 	"log"
 	"net/http"
@@ -25,6 +26,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	item := args[0]
 
+	if item == "" {
+		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
+
 	code := qidenticon.Code(item)
 	size := 256
 	settings := qidenticon.DefaultSettings()
@@ -39,6 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(args) == 1 {
+		log.Println("image")
 		w.Header().Set("Content-Type", "image/png")
 		w.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
 		if _, err := w.Write(buffer.Bytes()); err != nil {
@@ -47,11 +54,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	md5 := md5.New().Sum(buffer.Bytes())
+	hash := md5.Sum(buffer.Bytes())
+	md5 := hex.EncodeToString(hash[:])
+	utf8 := []byte(md5)
 
 	w.Header().Set("Content-Type", "plain/text")
-	w.Header().Set("Content-Length", strconv.Itoa(len(md5)))
-	if _, err := w.Write(md5); err != nil {
+	w.Header().Set("Content-Length", strconv.Itoa(len(utf8)))
+	if _, err := w.Write(utf8); err != nil {
 		log.Println("unable to write md5")
 	}
 }
